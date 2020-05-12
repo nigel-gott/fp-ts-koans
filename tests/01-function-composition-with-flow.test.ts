@@ -24,7 +24,7 @@ test("composing incompatible functions can be caught by the compiler if typed!",
   const triple = (n: number): number => n * 3;
 
   let tripleLength;
-  // Uncomment and check out the type error!
+  // Uncomment, see and fix the type error!
   // tripleLength = flow(triple, len);
 
   expect(tripleLength("aaa")).toBe(9);
