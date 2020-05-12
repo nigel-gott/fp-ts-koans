@@ -30,7 +30,7 @@ test("composing incompatible functions can be caught by the compiler if typed!",
   expect(tripleLength("aaa")).toBe(9);
 });
 
-test("there is no generic curry function in typescript or fp-ts, use explicit currying instead :(", () => {
+test("there is no generic curry function which fully preserves types in typescript or fp-ts, use explicit currying instead :(", () => {
   const add = (x: number, y: number): number => x + y;
   let curriedAdd = (x:number) => (y:number) => x + y
 
