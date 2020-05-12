@@ -9,3 +9,12 @@ test("compose your functions with flow", () => {
 
   expect(addFiveAndTen(10)).toBe(25);
 });
+
+test("flow composes functions from left to right", () => {
+  const len = (x) => x.length;
+  const triple = (x) => x * 3;
+
+  const tripleLength = undefined 
+
+  expect(tripleLength("aaa")).toBe(9);
+});
