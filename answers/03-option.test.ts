@@ -28,31 +28,62 @@ test("Instead of unwrapping the Option to work on the value, use Option.map to a
   expect(upperCase(Option.none)).toStrictEqual(Option.none); // If there is nothing you'll get back nothing!
 });
 
-test("Wrap dangerous null and undefined using Option's helper methods", () => {
-  // Fill in the assertions!
-  expect(Option.fromNullable(null)).toStrictEqual(Option.none); 
-  expect(Option.fromNullable(undefined)).toStrictEqual(Option.none); 
-  expect(Option.fromNullable("thing")).toStrictEqual(Option.some("thing")); 
+test("Use these helper methods to easily create Options", () => {
+  expect(Option.fromNullable(null)).toStrictEqual(Option.none);
+  expect(Option.fromNullable(undefined)).toStrictEqual(Option.none);
+  expect(Option.fromNullable("thing")).toStrictEqual(Option.some("thing"));
 
-  const validator = Option.fromPredicate((x:string) => x.length > 3)
-  expect(validator("valid")).toStrictEqual(Option.some("valid")); 
-  expect(validator("err")).toStrictEqual(Option.none); 
-})
+  const validator = Option.fromPredicate((x: string) => x.length > 3);
+  expect(validator("valid")).toStrictEqual(Option.some("valid"));
+  expect(validator("err")).toStrictEqual(Option.none);
 
-// test("use option to model a value which can be absent instead of null or undefined!", () => {
-//   const curriedLookup = (x: string) => (y: Readonly<Record<string, unknown>>) => lookup(x, y);
+  const throwIfInvalid = (s: string) => {
+    if (s.length <= 3) {
+      throw new Error("Error!");
+    } else {
+      return s;
+    }
+  };
+  expect(Option.tryCatch(() => throwIfInvalid("valid"))).toStrictEqual(
+    Option.some("valid")
+  );
+  expect(Option.tryCatch(() => throwIfInvalid("err"))).toStrictEqual(
+    Option.none
+  );
+});
 
-//   const registerUser = (x: { username?: string; }) =>
-//     pipe(
-//       x,
-//       curriedLookup("username"),
-//       filter((t:string) => t.length > 3),
-//       map((u) => `Welcome ${u}!`),
-//       getOrElse(() => "Error!"),
-//     );
+test("Refactor and fix this unsafe and buggy code with Options and pipes!", () => {
+  const trace = tag => x =>{
+        console.log(tag,x)
+        return x
+  }
+  const dodgyUserApi = {
+    charlie: "{ posts : 20 }",
+    stephen: `{ "posts" : 0 }`,
+  };
+  const optionParseJson = (json: string) : Option.Option<any> => Option.tryCatch(() => JSON.parse(json))
+  const getNumberOfUsersPosts = (username: string) => 
+    pipe(
+      lookup(username, dodgyUserApi),
+      Option.map(optionParseJson),
+      Option.map((Option.map(((userData:any) => lookup("posts", userData))))),
+    );
+  const displayNumberOfUsersPosts = (username: string) =>
+    pipe(
+      getNumberOfUsersPosts(username),
+      Option.map(
+        Option.map(Option.map((posts) => `${username} has ${posts} posts`))
+      ),
+      Option.flatten,
+      Option.flatten,
+      Option.getOrElse(() => `Error getting number of user ${username}'s posts`)
+    );
 
-//   expect(registerUser({ username: "Charlie" })).toBe("Welcome Charlie!");
-//   expect(registerUser({ username: "xss" })).toBe("Error!");
-//   expect(registerUser({})).toBe("Error!");
-//   expect("I have refactored it!").toBe("I have refactored it!");
-// });
+  expect(displayNumberOfUsersPosts("stephen")).toBe("stephen has 0 posts");
+  expect(displayNumberOfUsersPosts("unknown")).toBe(
+    "Error getting number of user unknown's posts"
+  );
+  expect(displayNumberOfUsersPosts("charlie")).toBe(
+    "Error getting number of user charlie's posts"
+  );
+});

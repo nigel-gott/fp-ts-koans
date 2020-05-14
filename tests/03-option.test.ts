@@ -21,7 +21,7 @@ test("Instead of unwrapping the Option to work on the value, use Option.map to a
   expect(upperCase(Option.none)).toStrictEqual(Option.none); // If there is nothing you'll get back nothing!
 });
 
-test("Wrap dangerous null and undefined using Option's helper methods", () => {
+test("Use these helper methods to easily create Options", () => {
   // Fill in the assertions!
   expect(Option.fromNullable(null)).toStrictEqual(undefined); 
   expect(Option.fromNullable(undefined)).toStrictEqual(undefined); 
@@ -30,6 +30,10 @@ test("Wrap dangerous null and undefined using Option's helper methods", () => {
   const validator = Option.fromPredicate((x:string) => x.length > 3)
   expect(validator("valid")).toStrictEqual(undefined); 
   expect(validator("err")).toStrictEqual(undefined); 
+
+  const throwIfInvalid = (s:string) => { if(s.length <= 3) { throw new Error("Error!") } else { return s } }
+  expect(Option.tryCatch(() => throwIfInvalid("valid"))).toStrictEqual(undefined) 
+  expect(Option.tryCatch(() => throwIfInvalid("err"))).toStrictEqual(undefined) 
 })
 
 test("Options make working nullables much safer by forcing you to handle the none case", () => {
@@ -41,4 +45,40 @@ test("Options make working nullables much safer by forcing you to handle the non
 
   expect(registerUser({ username: "Charles" })).toBe("Welcome Charles!");
   expect(registerUser({})).toBe("Error!");
+});
+
+
+test("Refactor and fix this unsafe and buggy code with Options and pipes!", () => {
+  const dodgyUserApi = {
+    charlie: "{ posts : 20 }",
+    stephen: "{ 'posts' : 0 }",
+  };
+  // Refactor the following two functions
+  const getNumberOfUsersPosts = (username: string) => {
+    let userDataJson = dodgyUserApi[username];
+    if (!userDataJson) {
+      try {
+        let userData = JSON.parse(userDataJson);
+        return userData["posts"]
+      } catch (e) {
+        return null
+      }
+    } else {
+      return null
+    }
+  };
+  const displayNumberOfUsersPosts = (username:string) => {
+    let numberOfUsersPosts = getNumberOfUsersPosts(username)
+    if(!numberOfUsersPosts){
+      return `Error getting number of user ${username}'s posts`
+    } else {
+      return `${username} has ${numberOfUsersPosts} posts`
+    }
+  }
+
+  // Fix the bug exposed by this failing test
+  expect(displayNumberOfUsersPosts("stephen")).toBe("stephen has 0 posts")
+
+  expect(displayNumberOfUsersPosts("unknown")).toBe("Error getting number of user unknown's posts")
+  expect(displayNumberOfUsersPosts("charlie")).toBe("Error getting number of user charlie's posts")
 });
