@@ -28,15 +28,19 @@ test("Instead of unwrapping the Option to work on the value, use Option.map to a
   expect(upperCase(Option.none)).toStrictEqual(Option.none); // If there is nothing you'll get back nothing!
 });
 
-test("Use these helper methods to easily create Options", () => {
+test("You can get an safer Option from a dangerous nullable", () => {
   expect(Option.fromNullable(null)).toStrictEqual(Option.none);
   expect(Option.fromNullable(undefined)).toStrictEqual(Option.none);
   expect(Option.fromNullable("thing")).toStrictEqual(Option.some("thing"));
+});
 
+test("Or use a predicate to wrap a value in an Option", () => {
   const validator = Option.fromPredicate((x: string) => x.length > 3);
   expect(validator("valid")).toStrictEqual(Option.some("valid"));
   expect(validator("err")).toStrictEqual(Option.none);
+});
 
+test("Functions throwing exceptions can also be transformed to easier to deal with Options", () => {
   const throwIfInvalid = (s: string) => {
     if (s.length <= 3) {
       throw new Error("Error!");
@@ -53,20 +57,21 @@ test("Use these helper methods to easily create Options", () => {
 });
 
 test("Refactor and fix this unsafe and buggy code with Options and pipes!", () => {
-  const trace = tag => x =>{
-        console.log(tag,x)
-        return x
-  }
+  const trace = (tag) => (x) => {
+    console.log(tag, x);
+    return x;
+  };
   const dodgyUserApi = {
     charlie: "{ posts : 20 }",
     stephen: `{ "posts" : 0 }`,
   };
-  const optionParseJson = (json: string) : Option.Option<any> => Option.tryCatch(() => JSON.parse(json))
-  const getNumberOfUsersPosts = (username: string) => 
+  const optionParseJson = (json: string): Option.Option<any> =>
+    Option.tryCatch(() => JSON.parse(json));
+  const getNumberOfUsersPosts = (username: string) =>
     pipe(
       lookup(username, dodgyUserApi),
       Option.map(optionParseJson),
-      Option.map((Option.map(((userData:any) => lookup("posts", userData))))),
+      Option.map(Option.map((userData: any) => lookup("posts", userData)))
     );
   const displayNumberOfUsersPosts = (username: string) =>
     pipe(

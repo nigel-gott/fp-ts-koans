@@ -21,16 +21,20 @@ test("Instead of unwrapping the Option to work on the value, use Option.map to a
   expect(upperCase(Option.none)).toStrictEqual(Option.none); // If there is nothing you'll get back nothing!
 });
 
-test("Use these helper methods to easily create Options", () => {
+test("You can get an safer Option from a dangerous nullable", () => {
   // Fill in the assertions!
   expect(Option.fromNullable(null)).toStrictEqual(undefined); 
   expect(Option.fromNullable(undefined)).toStrictEqual(undefined); 
   expect(Option.fromNullable("thing")).toStrictEqual(undefined); 
+});
 
+test("Or use a predicate to wrap a value in an Option", () => {
   const validator = Option.fromPredicate((x:string) => x.length > 3)
   expect(validator("valid")).toStrictEqual(undefined); 
   expect(validator("err")).toStrictEqual(undefined); 
+});
 
+test("Functions throwing exceptions can also be transformed to easier to deal with Options", () => {
   const throwIfInvalid = (s:string) => { if(s.length <= 3) { throw new Error("Error!") } else { return s } }
   expect(Option.tryCatch(() => throwIfInvalid("valid"))).toStrictEqual(undefined) 
   expect(Option.tryCatch(() => throwIfInvalid("err"))).toStrictEqual(undefined) 
