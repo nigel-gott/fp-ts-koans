@@ -28,6 +28,17 @@ test("Instead of unwrapping the Option to work on the value, use Option.map to a
   expect(upperCase(Option.none)).toStrictEqual(Option.none); // If there is nothing you'll get back nothing!
 });
 
+test("Wrap dangerous null and undefined using Option's helper methods", () => {
+  // Fill in the assertions!
+  expect(Option.fromNullable(null)).toStrictEqual(Option.none); 
+  expect(Option.fromNullable(undefined)).toStrictEqual(Option.none); 
+  expect(Option.fromNullable("thing")).toStrictEqual(Option.some("thing")); 
+
+  const validator = Option.fromPredicate((x:string) => x.length > 3)
+  expect(validator("valid")).toStrictEqual(Option.some("valid")); 
+  expect(validator("err")).toStrictEqual(Option.none); 
+})
+
 // test("use option to model a value which can be absent instead of null or undefined!", () => {
 //   const curriedLookup = (x: string) => (y: Readonly<Record<string, unknown>>) => lookup(x, y);
 
