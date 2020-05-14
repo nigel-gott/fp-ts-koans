@@ -1,7 +1,7 @@
 // Unused imports are hints!
 import { flow } from "fp-ts/lib/function";
 
-test("compose your functions with flow", () => {
+test("you can compose functions with flow", () => {
   const addFive = (x) => x + 5;
   const addTen = (x) => x + 10;
 
@@ -19,7 +19,7 @@ test("flow composes functions from left to right", () => {
   expect(tripleLength("aaa")).toBe(9);
 });
 
-test("composing incompatible functions can be caught by the compiler if typed!", () => {
+test("composing incompatible functions can be caught by the compiler if they have types!", () => {
   const len = (c: string): number => c.length;
   const triple = (n: number): number => n * 3;
 
@@ -30,7 +30,7 @@ test("composing incompatible functions can be caught by the compiler if typed!",
   expect(tripleLength("aaa")).toBe(9);
 });
 
-test("there is no generic curry function which fully preserves types in typescript or fp-ts, use explicit currying instead :(", () => {
+test("there is no generic curry function fully preserving types in typescript, explicitly curry instead", () => {
   const add = (x: number, y: number): number => x + y;
   let curriedAdd = undefined
 
